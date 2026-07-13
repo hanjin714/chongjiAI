@@ -86,7 +86,7 @@ const createSchema = z.object({
   storeId: z.string().optional(),
 });
 
-router.post('/', requireRole([Role.TENANT_OWNER, Role.STORE_MANAGER]), async (req: AuthRequest, res) => {
+router.post('/', requireRole(Role.TENANT_OWNER, Role.STORE_MANAGER), async (req: AuthRequest, res) => {
   try {
     const parseResult = createSchema.safeParse(req.body);
     if (!parseResult.success) {
@@ -112,7 +112,7 @@ router.post('/', requireRole([Role.TENANT_OWNER, Role.STORE_MANAGER]), async (re
   }
 });
 
-router.put('/:id', requireRole([Role.TENANT_OWNER, Role.STORE_MANAGER]), async (req: AuthRequest, res) => {
+router.put('/:id', requireRole(Role.TENANT_OWNER, Role.STORE_MANAGER), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
 
@@ -146,7 +146,7 @@ router.put('/:id', requireRole([Role.TENANT_OWNER, Role.STORE_MANAGER]), async (
   }
 });
 
-router.delete('/:id', requireRole([Role.TENANT_OWNER, Role.STORE_MANAGER]), async (req: AuthRequest, res) => {
+router.delete('/:id', requireRole(Role.TENANT_OWNER, Role.STORE_MANAGER), async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
 

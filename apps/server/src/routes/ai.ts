@@ -38,10 +38,10 @@ router.post('/chat', async (req: AuthRequest, res) => {
           userId: user.userId,
           roleContext: user.role,
           title: message.slice(0, 50),
-          dataScope: {
+          dataScope: JSON.stringify({
             storeId: user.storeId,
             role: user.role,
-          },
+          }),
         },
       });
     }
