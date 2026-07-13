@@ -53,7 +53,7 @@ export default function Login() {
       login(res.data.token, res.data.user);
       navigate(from, { replace: true });
     } catch (err: any) {
-      setError(err?.message || '登录失败，请检查数据库是否已初始化');
+      setError(err?.message || '登录失败，请重试');
     } finally {
       setLoading(false);
     }
