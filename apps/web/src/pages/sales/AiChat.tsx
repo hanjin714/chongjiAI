@@ -16,7 +16,7 @@ export default function SalesAiChat() {
       id: '1',
       sender: 'AI',
       content:
-        '您好！我是您的AI销售助手 🐾\n\n我可以帮您：\n• 查询宠物库存和推荐\n• 生成销售话术\n• 查看今日任务\n• 解答客户常见问题\n\n试试问我："店里5000元以内适合新手养猫的有哪些？"',
+        '您好！我是您的AI销售助手 🐾\n\n我可以帮您：\n• 查询宠物库存和推荐\n• 生成销售话术和朋友圈文案\n• 查看今日任务和客户跟进\n• 解答客户常见问题\n\n⚠️ 门店经营数据（营业额、成本、利润等）属于店主权限，我无法查询，敬请理解。\n\n试试问我："店里3000元以内适合新手养猫的有哪些？"',
     },
   ]);
   const [input, setInput] = useState('');
@@ -37,7 +37,7 @@ export default function SalesAiChat() {
     '帮我生成回访话术',
     '今天有哪些任务？',
     '帮我写朋友圈推广文案',
-    '本月经营数据分析',
+    '帮我生成销售话术',
   ];
 
   const handleSend = async (text?: string) => {

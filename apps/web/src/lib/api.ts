@@ -299,7 +299,27 @@ async function mockRequest(method: string, url: string, data?: any, params?: any
 
   // POST /ai/chat
   if (url === '/ai/chat') {
-    const answer = getAiResponse(data?.message || '');
+    const message = data?.message || '';
+    const authUser = useAuthStore.getState().user;
+    const isSales = authUser?.role === 'SALES';
+
+    // 销售端敏感数据拦截：经营额/成本/利润/业绩排行等仅店主可见
+    if (isSales) {
+      const sensitiveKeywords = [
+        '经营', '营业额', '营收', '成本', '利润', '毛利', '净利', '收入',
+        '报表', '分析', '经营数据', '门店数据', '总营收', '盈利',
+        '业绩排行', '销售排行', '谁卖', '本月销售', '本月业绩', '业绩',
+      ];
+      const lower = message.toLowerCase();
+      if (sensitiveKeywords.some(k => lower.includes(k))) {
+        return ok({
+          answer: '抱歉，门店经营数据（营业额、成本、利润、业绩排行等）属于店主权限范围，我无法为您查询。\n\n我可以帮您：\n• 查询库存宠物和推荐\n• 生成销售话术和朋友圈文案\n• 查看今日任务和客户跟进\n• 解答客户常见问题\n\n如有经营数据相关需求，建议联系店主或使用老板端查看～',
+          cards: [],
+        });
+      }
+    }
+
+    const answer = getAiResponse(message);
     return ok({ answer, cards: [] });
   }
 
