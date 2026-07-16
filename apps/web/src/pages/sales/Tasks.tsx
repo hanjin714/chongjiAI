@@ -1,38 +1,30 @@
-import { useState, useEffect } from 'react';
-import { Copy, Check, AlertCircle, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Copy, Check, AlertCircle, Clock, CheckCircle, XCircle, PartyPopper, ClipboardList } from 'lucide-react';
 import api from '@/lib/api';
 import { getTaskTypeText, getTaskPriorityText, getTaskPriorityColor, formatDate, copyToClipboard } from '@/utils';
 
 export default function SalesTasks() {
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [filter, setFilter] = useState('TODO');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchTasks();
-  }, [filter]);
-
-  const fetchTasks = async () => {
-    setLoading(true);
-    try {
+  const { data: tasks = [], isLoading: loading } = useQuery({
+    queryKey: ['tasks', filter],
+    queryFn: async (): Promise<any[]> => {
       const params: any = { pageSize: 50 };
       if (filter !== 'ALL') params.status = filter;
-
       const res: any = await api.get('/tasks', { params });
-      setTasks(res.data.items || []);
-    } catch (error) {
-      console.error('获取任务失败:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data.items || [];
+    },
+  });
 
   const handleComplete = async (taskId: string, result: string) => {
     try {
       await api.post(`/tasks/${taskId}/complete`, { result });
-      fetchTasks();
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-report'] });
       setToast('任务已完成！');
       setTimeout(() => setToast(null), 2000);
     } catch (error) {
@@ -90,11 +82,30 @@ export default function SalesTasks() {
           <div className="text-gray-500">加载中...</div>
         </div>
       ) : tasks.length === 0 ? (
-        <div className="card p-12 text-center">
-          <CheckCircle className="w-16 h-16 mx-auto mb-4 text-green-400" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">暂无任务</h3>
-          <p className="text-gray-500">所有任务都已完成，继续保持！</p>
-        </div>
+        filter === 'TODO' ? (
+          <div className="card p-12 text-center">
+            <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-green-50 flex items-center justify-center shadow-sm">
+              <PartyPopper className="w-11 h-11 text-green-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">今日任务已完成 🎉</h3>
+            <p className="text-sm text-gray-400 mb-6">太棒了！所有待处理任务都已搞定，休息一下吧</p>
+            <button
+              onClick={() => setFilter('DONE')}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-pet-blue px-4 py-2 rounded-lg bg-pet-blue/10 hover:bg-pet-blue/15 transition-colors"
+            >
+              <ClipboardList className="w-4 h-4" />
+              查看已完成任务
+            </button>
+          </div>
+        ) : (
+          <div className="card p-12 text-center">
+            <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-gray-50 flex items-center justify-center shadow-sm">
+              <ClipboardList className="w-11 h-11 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">暂无任务</h3>
+            <p className="text-sm text-gray-400">这里还没有任何任务记录</p>
+          </div>
+        )
       ) : (
         <div className="space-y-4">
           {tasks.map((task) => (

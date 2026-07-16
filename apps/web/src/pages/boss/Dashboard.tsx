@@ -11,9 +11,11 @@ import {
   RefreshCw,
   ChevronRight,
   Sparkles,
+  Package,
 } from 'lucide-react';
 import api from '@/lib/api';
 import { formatDate } from '@/utils';
+import CountUp from '@/components/CountUp';
 
 interface DailyReport {
   summary: string;
@@ -163,9 +165,12 @@ export default function BossDashboard() {
           </div>
 
           {report.risks.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-400" />
-              <p>太棒了！今日无风险事项</p>
+            <div className="text-center py-10">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-50 flex items-center justify-center shadow-sm">
+                <CheckCircle className="w-9 h-9 text-green-500" />
+              </div>
+              <p className="font-bold text-gray-900 text-base mb-1">今日无风险事项</p>
+              <p className="text-sm text-gray-400">所有经营指标正常，继续保持！</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -211,9 +216,19 @@ export default function BossDashboard() {
           </div>
 
           {report.opportunities.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-              <p>暂无推荐机会</p>
+            <div className="text-center py-10">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-50 flex items-center justify-center shadow-sm">
+                <Clock className="w-9 h-9 text-gray-400" />
+              </div>
+              <p className="font-bold text-gray-900 text-base mb-1">暂无推荐机会</p>
+              <p className="text-sm text-gray-400 mb-4">AI 暂未发现今日可跟进的机会，去看看库存吧</p>
+              <button
+                onClick={() => navigate('/boss/pets')}
+                className="inline-flex items-center gap-1.5 text-sm text-pet-blue hover:text-pet-blue/80 font-medium px-4 py-2 rounded-lg bg-pet-blue/10 hover:bg-pet-blue/15 transition-colors"
+              >
+                <Package className="w-4 h-4" />
+                查看宠物库存
+              </button>
             </div>
           ) : (
             <div className="space-y-3">
@@ -301,7 +316,9 @@ function StatCard({
       <div className={`w-10 h-10 rounded-lg ${color} flex items-center justify-center mb-3`}>
         {icon}
       </div>
-      <div className="text-2xl font-bold text-gray-900">{value}</div>
+      <div className="text-2xl font-bold text-gray-900 tabular-nums">
+        <CountUp value={value} />
+      </div>
       <div className="text-sm text-gray-500">{label}</div>
       {sub && <div className="text-xs text-gray-400 mt-1">{sub}</div>}
     </div>
@@ -311,7 +328,9 @@ function StatCard({
 function QuickStat({ label, value }: { label: string; value: number }) {
   return (
     <div className="text-center">
-      <div className="text-xl font-bold text-gray-900">{value}</div>
+      <div className="text-xl font-bold text-gray-900 tabular-nums">
+        <CountUp value={value} />
+      </div>
       <div className="text-sm text-gray-500">{label}</div>
     </div>
   );

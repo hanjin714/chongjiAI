@@ -182,3 +182,53 @@ export const mockSalesOrders = [
   { id: 'so1', petId: 'p3', petName: '贝贝', customerId: 'c1', customerName: '林小姐', packageId: 'pk3', packageName: '年度健康守护卡', totalAmount: 10480, status: 'COMPLETED', createdAt: '2025-01-13 14:30', salesId: 'u2', salesName: '李小花' },
   { id: 'so2', petId: 'p7', petName: '豆豆', customerId: 'c2', customerName: '陈先生', packageId: 'pk1', packageName: '新手养猫套餐', totalAmount: 4780, status: 'COMPLETED', createdAt: '2025-01-13 11:20', salesId: 'u5', salesName: '陈销售' },
 ];
+
+// ─── 每日朋友圈海报 ───
+// 3 张海报对应 3 只在售宠物（status='AVAILABLE' → IN_STOCK）
+export const mockPosters = [
+  {
+    id: 'po1',
+    petId: 'p4',
+    petName: '雪球',
+    breed: '布偶猫',
+    color: '白手套',
+    gender: '母',
+    salePrice: 8800,
+    photoUrl: mockPets.find(p => p.id === 'p4')!.photoUrl,
+    caption: '🐾 仙气飘飘的布偶妹妹找新家啦！\n💎 蓝宝石般的大眼睛 + 白手套\n🎀 性格超温柔，是个粘人小公主\n💉 疫苗齐全 · 健康档案完整\n✨ 二胎家庭首选～有想看小可爱本人的吗？评论区留言哦～',
+    hashtags: ['#布偶猫', '#仙女猫', '#宠物店', '#上海宠物店'],
+    storeName: '静安旗舰店',
+    generatedAt: '2025-01-14 09:00',
+    published: false,
+  },
+  {
+    id: 'po2',
+    petId: 'p5',
+    petName: '旺财',
+    breed: '金毛',
+    color: '金色',
+    gender: '公',
+    salePrice: 4500,
+    photoUrl: mockPets.find(p => p.id === 'p5')!.photoUrl,
+    caption: '🐕 暖男金毛弟弟等你带回家！\n🦮 金色毛发 + 阳光笑容，治愈系代表\n🤗 已完成全部疫苗，性格亲人\n🎯 适合家庭饲养，孩子的好伙伴\n🚗 支持上门看狗，先到先得哦～私信我预约吧！',
+    hashtags: ['#金毛', '#暖男狗狗', '#宠物店', '#萌宠'],
+    storeName: '静安旗舰店',
+    generatedAt: '2025-01-14 09:00',
+    published: false,
+  },
+  {
+    id: 'po3',
+    petId: 'p1',
+    petName: '团团',
+    breed: '英短蓝猫',
+    color: '蓝灰色',
+    gender: '公',
+    salePrice: 3800,
+    photoUrl: mockPets.find(p => p.id === 'p1')!.photoUrl,
+    caption: '🐱 圆脸蓝灰弟弟求带走～\n💆 蓝灰色绒毛 + 圆嘟嘟包子脸\n💤 性格温顺，已做两针疫苗\n✨ 英短经典款，新手友好\n💕 喜欢就私信我了解详情吧～来店有惊喜哦！',
+    hashtags: ['#英短蓝猫', '#宠物店', '#萌宠', '#新手养猫'],
+    storeName: '静安旗舰店',
+    generatedAt: '2025-01-14 09:00',
+    published: false,
+  },
+];

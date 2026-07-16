@@ -2,7 +2,7 @@
 import {
   mockUsers, mockPets, mockCustomers, mockPackages, mockTasks,
   mockStores, mockDailyReport, mockFeishuStatus, mockFeishuLogs,
-  mockHealthLogs, mockSalesOrders, getAiResponse,
+  mockHealthLogs, mockSalesOrders, mockPosters, getAiResponse,
 } from '../mock/data';
 
 const delay = (ms = 300) => new Promise(r => setTimeout(r, ms));
@@ -337,6 +337,24 @@ async function mockRequest(method: string, url: string, data?: any, params?: any
       timeline,
       nextReminders,
     });
+  }
+
+  // GET /posters/daily — 今日朋友圈海报（3张）
+  if (url === '/posters/daily' && method === 'GET') {
+    const today = new Date().toISOString().slice(0, 10);
+    return ok({
+      date: today,
+      items: mockPosters.map(p => ({ ...p })),
+      total: mockPosters.length,
+    });
+  }
+
+  // POST /posters/:id/publish — 标记海报已发布到朋友圈
+  const posterPublishMatch = url.match(/^\/posters\/([^/]+)\/publish$/);
+  if (posterPublishMatch && method === 'POST') {
+    const poster = mockPosters.find(p => p.id === posterPublishMatch[1]);
+    if (poster) poster.published = true;
+    return ok({ ...(poster || {}), published: true });
   }
 
   // fallback

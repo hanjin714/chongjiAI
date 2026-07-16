@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, FileText, CheckCircle, Camera, Image, X } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, CheckCircle, Camera, Image, X, ExternalLink } from 'lucide-react';
 import api from '@/lib/api';
 import { formatPrice } from '@/utils';
 
@@ -116,6 +116,13 @@ export default function SalesCheckout() {
               className="btn btn-primary w-full"
             >
               查看回访任务
+            </button>
+            <button
+              onClick={() => navigate('/public/pet/' + petId + '/profile')}
+              className="btn btn-secondary w-full"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              查看宠物公开档案
             </button>
             <button
               onClick={() => navigate('/sales/inventory')}

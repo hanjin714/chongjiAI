@@ -12,6 +12,7 @@ import BossStores from './pages/boss/Stores';
 import BossCustomers from './pages/boss/Customers';
 import BossAiChat from './pages/boss/AiChat';
 import BossFeishu from './pages/boss/Feishu';
+import BossPosters from './pages/boss/Posters';
 import BossPackages from './pages/boss/Packages';
 import SalesDashboard from './pages/sales/Dashboard';
 import SalesInventory from './pages/sales/Inventory';
@@ -19,6 +20,7 @@ import SalesPetDetail from './pages/sales/PetDetail';
 import SalesCustomers from './pages/sales/Customers';
 import SalesTasks from './pages/sales/Tasks';
 import SalesAiChat from './pages/sales/AiChat';
+import SalesPosters from './pages/sales/Posters';
 import SalesCheckout from './pages/sales/Checkout';
 import KeeperDashboard from './pages/keeper/Dashboard';
 import KeeperPets from './pages/keeper/Pets';
@@ -84,6 +86,7 @@ export default function App() {
         <Route path="stores" element={<BossStores />} />
         <Route path="ai-chat" element={<BossAiChat />} />
         <Route path="feishu" element={<BossFeishu />} />
+        <Route path="posters" element={<BossPosters />} />
       </Route>
 
       <Route
@@ -102,6 +105,7 @@ export default function App() {
         <Route path="customers" element={<SalesCustomers />} />
         <Route path="tasks" element={<SalesTasks />} />
         <Route path="ai-chat" element={<SalesAiChat />} />
+        <Route path="posters" element={<SalesPosters />} />
       </Route>
 
       <Route

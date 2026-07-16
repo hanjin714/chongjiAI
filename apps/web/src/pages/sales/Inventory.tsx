@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ShoppingCart } from 'lucide-react';
+import { Search, Package, RefreshCw } from 'lucide-react';
 import api from '@/lib/api';
 import { getPetStatusText, getPetStatusColor, formatPrice } from '@/utils';
 
@@ -68,9 +68,18 @@ export default function SalesInventory() {
         </div>
       ) : pets.length === 0 ? (
         <div className="card p-12 text-center">
-          <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">暂无在售宠物</h3>
-          <p className="text-gray-500">联系店长添加宠物库存</p>
+          <div className="w-20 h-20 mx-auto mb-5 rounded-full bg-blue-50 flex items-center justify-center shadow-sm">
+            <Package className="w-11 h-11 text-blue-500" />
+          </div>
+          <h3 className="text-lg font-bold text-gray-900 mb-2">暂无在售宠物</h3>
+          <p className="text-sm text-gray-400 mb-6">当前筛选条件下没有可销售的宠物，联系店长补充库存</p>
+          <button
+            onClick={fetchPets}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-pet-blue px-4 py-2 rounded-lg bg-pet-blue/10 hover:bg-pet-blue/15 transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+            重新加载
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

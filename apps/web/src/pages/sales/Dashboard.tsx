@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckSquare, Users, Package, MessageSquare, Clock, AlertCircle, ChevronRight, Sparkles } from 'lucide-react';
 import api from '@/lib/api';
+import CountUp from '@/components/CountUp';
 
 export default function SalesDashboard() {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -60,15 +61,21 @@ export default function SalesDashboard() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <div className="card p-4">
-          <div className="text-2xl font-bold text-gray-900">{stats.todo}</div>
+          <div className="text-2xl font-bold text-gray-900 tabular-nums">
+            <CountUp value={stats.todo} />
+          </div>
           <div className="text-sm text-gray-500">待处理任务</div>
         </div>
         <div className="card p-4">
-          <div className="text-2xl font-bold text-red-500">{stats.high}</div>
+          <div className="text-2xl font-bold text-red-500 tabular-nums">
+            <CountUp value={stats.high} />
+          </div>
           <div className="text-sm text-gray-500">高优先级</div>
         </div>
         <div className="card p-4">
-          <div className="text-2xl font-bold text-green-500">{stats.completed}</div>
+          <div className="text-2xl font-bold text-green-500 tabular-nums">
+            <CountUp value={stats.completed} />
+          </div>
           <div className="text-sm text-gray-500">已完成</div>
         </div>
       </div>

@@ -13,6 +13,7 @@ import {
   Sparkles,
   Database,
   Package,
+  Image,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 import { cn } from '@/utils';
@@ -25,6 +26,7 @@ const menuItems = [
   { path: '/boss/users', label: '员工管理', icon: Users },
   { path: '/boss/stores', label: '门店管理', icon: Store },
   { path: '/boss/ai-chat', label: 'AI 对话', icon: MessageSquare },
+  { path: '/boss/posters', label: '每日海报', icon: Image },
   { path: '/boss/feishu', label: '飞书同步', icon: Database },
 ];
 
