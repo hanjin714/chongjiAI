@@ -130,6 +130,19 @@ const aiResponses: Record<string, string[]> = {
   套餐: [
     '套餐销售分析：\n\n🔥 爆款：精品美容洗护套餐 — 已售87份\n📈 增长最快：年度健康守护卡 — 复购率40%\n⭐ 好评最高：新手养猫套餐 — 好评率98%\n\n建议：\n1. 美容洗护套餐可搭配寄养安心包做组合优惠\n2. 猫咪绝育安心套餐需求旺盛，可加大推广\n3. 考虑推出"狗狗生日派对"新套餐',
   ],
+  业绩: [
+    '📊 本月销售业绩排行：\n\n🥇 张销售 — ¥48,200（18只）\n🥈 李销售 — ¥42,800（15只）\n🥉 王销售 — ¥37,560（14只）\n\n💡 张销售表现突出，她的客户复购率也最高，可以总结下经验分享给团队～',
+  ],
+  文案: [
+    '📱 朋友圈推广文案：\n\n🐾 新来的小可爱们报到啦！\n\n本月新到8只超萌小宝贝\n英短/布偶/柯基/金毛全都有\n疫苗全 · 健康保障 · 售后无忧\n\n📍 宠爱有家·静安旗舰店\n📞 私信了解详情\n\n来店即送新手大礼包哦～\n\n#宠物店 #猫咪 #狗狗 #萌宠',
+    '📱 小红书种草文案：\n\n标题：这家宠物店的布偶猫也太仙了吧！🥺\n\n今天去看了闺蜜推荐的宠物店，被这只布偶猫美哭了！蓝眼睛白手套，性格还超粘人～\n\n店主说所有宠物都有疫苗证和健康档案，售后还送新手套餐，太贴心了！\n\n📍 宠爱有家·静安区\n💰 布偶猫 ¥8,800起\n\n#布偶猫 #宠物店推荐 #上海宠物店 #新手养猫',
+  ],
+  库存: [
+    '📦 当前库存分析：\n\n在售宠物6只：\n  🐱 猫咪4只 — 英短/橘猫/布偶/美短\n  🐶 狗狗1只 — 金毛\n  🐰 兔子1只 — 垂耳兔\n\n已售2只：柯基贝贝、泰迪豆豆\n\n💡 建议：\n1. 布偶猫咨询量最高，可重点推广\n2. 狗狗品类较少，可考虑补货\n3. 垂耳兔适合做差异化营销',
+  ],
+  分析: [
+    '📈 本月经营分析：\n\n总营收：¥128,560（环比+23.5%）\n订单数：47单\n新客户：12位\n复购率：38.2%\n\n🔍 关键发现：\n1. 猫咪类销售占比65%，是主力品类\n2. 美容洗护套餐复购率最高（40%）\n3. 周末客流量是工作日的2.3倍\n\n💡 建议：\n• 周末增加人手\n• 推出猫咪主题日活动\n• 对老客户推送复购优惠',
+  ],
   任务: [
     '今日待办任务5项：\n\n🔴 高优先级：\n- 回访林小姐（布偶猫到货通知）\n- 王太太流失挽回\n\n🟡 中优先级：\n- 陈先生7天回访\n- 补货猫粮\n\n🟢 低优先级：\n- 朋友圈内容发布\n\n建议优先处理高优先级的客户回访任务。',
   ],
@@ -145,6 +158,18 @@ export function getAiResponse(message: string): string {
   }
   if (lower.includes('套餐') || lower.includes('卖') || lower.includes('库存')) {
     return aiResponses['套餐'][Math.floor(Math.random() * aiResponses['套餐'].length)];
+  }
+  if (lower.includes('业绩') || lower.includes('销售排行') || lower.includes('谁卖')) {
+    return aiResponses['业绩'][0];
+  }
+  if (lower.includes('文案') || lower.includes('朋友圈') || lower.includes('小红书') || lower.includes('推广')) {
+    return aiResponses['文案'][Math.floor(Math.random() * aiResponses['文案'].length)];
+  }
+  if (lower.includes('库存') || lower.includes('剩多少') || lower.includes('几只')) {
+    return aiResponses['库存'][0];
+  }
+  if (lower.includes('分析') || lower.includes('报表') || lower.includes('经营') || lower.includes('数据')) {
+    return aiResponses['分析'][0];
   }
   if (lower.includes('任务') || lower.includes('待办') || lower.includes('提醒')) {
     return aiResponses['任务'][Math.floor(Math.random() * aiResponses['任务'].length)];

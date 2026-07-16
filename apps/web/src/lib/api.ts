@@ -2,7 +2,7 @@
 import {
   mockUsers, mockPets, mockCustomers, mockPackages, mockTasks,
   mockStores, mockDailyReport, mockFeishuStatus, mockFeishuLogs,
-  mockHealthLogs, getAiResponse,
+  mockHealthLogs, mockSalesOrders, getAiResponse,
 } from '../mock/data';
 
 const delay = (ms = 300) => new Promise(r => setTimeout(r, ms));
@@ -185,9 +185,34 @@ async function mockRequest(method: string, url: string, data?: any, params?: any
     return ok({ items, total: items.length });
   }
 
+  // GET /customers/:id
+  const customerMatch = url.match(/^\/customers\/([^/?]+)$/);
+  if (customerMatch && method === 'GET') {
+    const c = mockCustomers.find(cu => cu.id === customerMatch[1]);
+    if (!c) return ok(null);
+    const pets = c.petIds.map(pid => mockPets.find(p => p.id === pid)).filter(Boolean);
+    const orders = mockSalesOrders.filter(o => o.customerId === c.id);
+    return ok({
+      id: c.id, name: c.name, phone: c.phone, riskLevel: c.riskLevel,
+      tag: c.tag, totalSpent: c.totalSpent, lastContactAt: c.lastContactAt,
+      remark: c.remark, pets, orders,
+      assignedSalesName: c.tag === 'VIP' ? '李小花' : '陈销售',
+    });
+  }
+
   // GET /packages
   if (url.startsWith('/packages') && method === 'GET') {
     return ok({ items: mockPackages, total: mockPackages.length });
+  }
+
+  // PUT /packages/:id
+  if (url.match(/^\/packages\/[^/]+$/) && method === 'PUT') {
+    return ok({ ...data, id: url.split('/').pop() });
+  }
+
+  // DELETE /packages/:id
+  if (url.match(/^\/packages\/[^/]+$/) && method === 'DELETE') {
+    return ok({ success: true });
   }
 
   // GET /tasks
@@ -288,7 +313,30 @@ async function mockRequest(method: string, url: string, data?: any, params?: any
   const publicPetMatch = url.match(/^\/public\/pets\/([^/]+)\/profile$/);
   if (publicPetMatch) {
     const pet = mockPets.find(p => p.id === publicPetMatch[1]);
-    return ok({ pet });
+    if (!pet) return ok(null);
+    const customer = pet.customerId ? mockCustomers.find(c => c.id === pet.customerId) : null;
+    const store = mockStores.find(s => s.id === pet.storeId);
+    const logs = mockHealthLogs.filter(l => l.petId === pet.id);
+    const timeline = logs.map(l => ({
+      title: l.type === 'VACCINE' ? '疫苗接种' : l.type === 'DEWORM' ? '驱虫' : l.type === 'GROOMING' ? '美容护理' : l.type === 'FEED' ? '日常喂养' : l.type === 'CHECKUP' ? '健康体检' : '护理记录',
+      date: l.createdAt,
+      content: l.content,
+    }));
+    const nextReminders = [
+      { title: '下次疫苗', date: '2025-02-10' },
+      { title: '下次驱虫', date: '2025-02-05' },
+    ];
+    return ok({
+      pet: {
+        id: pet.id, name: pet.name, breed: pet.breed, gender: pet.gender === '公' ? 'MALE' : 'FEMALE',
+        birthday: pet.birthDate, color: pet.color, photoUrl: pet.photoUrl,
+        vaccineStatus: '已接种', publicId: `PET-${pet.id.toUpperCase()}`,
+      },
+      customer: customer ? { name: customer.name, phone: customer.phone } : null,
+      store: store ? { name: store.name, phone: store.phone, address: store.address } : null,
+      timeline,
+      nextReminders,
+    });
   }
 
   // fallback

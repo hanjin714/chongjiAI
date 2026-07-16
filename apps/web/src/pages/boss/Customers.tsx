@@ -7,6 +7,8 @@ export default function BossCustomers() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [riskFilter, setRiskFilter] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   useEffect(() => {
     fetchCustomers();
@@ -24,6 +26,19 @@ export default function BossCustomers() {
       console.error('获取客户列表失败:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openDetail = async (id: string) => {
+    setDetailLoading(true);
+    setSelectedCustomer(null);
+    try {
+      const res: any = await api.get(`/customers/${id}`);
+      setSelectedCustomer(res.data);
+    } catch (error) {
+      console.error('获取客户详情失败:', error);
+    } finally {
+      setDetailLoading(false);
     }
   };
 
@@ -121,7 +136,7 @@ export default function BossCustomers() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filtered.map((customer) => (
-                <tr key={customer.id} className="hover:bg-gray-50">
+                <tr key={customer.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => openDetail(customer.id)}>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 bg-gradient-to-br from-pet-pink to-pet-orange rounded-full flex items-center justify-center text-white text-sm font-medium">
@@ -151,6 +166,99 @@ export default function BossCustomers() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {selectedCustomer && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => !detailLoading && setSelectedCustomer(null)}>
+          <div className="bg-white rounded-xl max-w-lg w-full max-h-[80vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+            {detailLoading ? (
+              <div className="text-center py-8 text-gray-500">加载中...</div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-pet-pink to-pet-orange rounded-full flex items-center justify-center text-white font-medium">
+                      {selectedCustomer.name?.charAt(0)}
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">{selectedCustomer.name}</h2>
+                      <p className="text-sm text-gray-500">{selectedCustomer.phone}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setSelectedCustomer(null)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
+                  <div>
+                    <span className="text-gray-500">风险等级：</span>
+                    <span className={selectedCustomer.riskLevel === 'HIGH' ? 'text-red-600' : selectedCustomer.riskLevel === 'MEDIUM' ? 'text-yellow-600' : 'text-green-600'}>
+                      {selectedCustomer.riskLevel === 'HIGH' ? '高风险' : selectedCustomer.riskLevel === 'MEDIUM' ? '中风险' : '低风险'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">标签：</span>
+                    <span className="text-gray-900">{selectedCustomer.tag || '-'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">累计消费：</span>
+                    <span className="text-gray-900 font-medium">¥{selectedCustomer.totalSpent?.toLocaleString()}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">跟进销售：</span>
+                    <span className="text-gray-900">{selectedCustomer.assignedSalesName || '-'}</span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-500">上次联系：</span>
+                    <span className="text-gray-900">{selectedCustomer.lastContactAt || '-'}</span>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">关联宠物</h3>
+                  {selectedCustomer.pets && selectedCustomer.pets.length > 0 ? (
+                    <div className="space-y-2">
+                      {selectedCustomer.pets.map((p: any) => (
+                        <div key={p.id} className="flex items-center gap-3 bg-gray-50 rounded-lg p-2">
+                          {p.photoUrl && <img src={p.photoUrl} alt={p.name} className="w-10 h-10 rounded-lg object-cover" />}
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-gray-900">{p.name} · {p.breed}</div>
+                            <div className="text-xs text-gray-500">{p.species} · {p.gender} · ¥{p.price?.toLocaleString()}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-400">暂无关联宠物</p>
+                  )}
+                </div>
+
+                <div className="mb-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">消费记录</h3>
+                  {selectedCustomer.orders && selectedCustomer.orders.length > 0 ? (
+                    <div className="space-y-2">
+                      {selectedCustomer.orders.map((o: any) => (
+                        <div key={o.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2 text-sm">
+                          <div>
+                            <div className="text-gray-900">{o.petName || o.packageName}</div>
+                            <div className="text-xs text-gray-500">{o.createdAt}</div>
+                          </div>
+                          <div className="text-gray-900 font-medium">¥{o.totalAmount?.toLocaleString()}</div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-400">暂无消费记录</p>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">备注</h3>
+                  <p className="text-sm text-gray-600 bg-gray-50 rounded-lg p-3">{selectedCustomer.remark || '暂无备注'}</p>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
