@@ -8,6 +8,7 @@ export default function SalesTasks() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('TODO');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTasks();
@@ -32,6 +33,8 @@ export default function SalesTasks() {
     try {
       await api.post(`/tasks/${taskId}/complete`, { result });
       fetchTasks();
+      setToast('任务已完成！');
+      setTimeout(() => setToast(null), 2000);
     } catch (error) {
       console.error('完成任务失败:', error);
     }
@@ -161,6 +164,12 @@ export default function SalesTasks() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          {toast}
         </div>
       )}
     </div>

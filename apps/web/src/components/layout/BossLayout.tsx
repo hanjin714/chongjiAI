@@ -105,8 +105,9 @@ export default function BossLayout() {
               </div>
             )}
             {sidebarOpen && (
-              <button onClick={handleLogout} className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors">
-                <LogOut className="w-4 h-4 text-gray-500" />
+              <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                <LogOut className="w-4 h-4" />
+                退出
               </button>
             )}
           </div>

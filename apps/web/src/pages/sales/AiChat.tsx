@@ -36,6 +36,8 @@ export default function SalesAiChat() {
     '店里3000元以内适合新手养的猫有哪些？',
     '帮我生成回访话术',
     '今天有哪些任务？',
+    '帮我写朋友圈推广文案',
+    '本月经营数据分析',
   ];
 
   const handleSend = async (text?: string) => {

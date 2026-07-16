@@ -23,6 +23,7 @@ export default function BossPackages() {
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [toast, setToast] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -82,6 +83,8 @@ export default function BossPackages() {
     try {
       await api.delete(`/packages/${id}`);
       fetchPackages();
+      setToast('套餐已删除');
+      setTimeout(() => setToast(null), 2000);
     } catch (error) {
       console.error('删除套餐失败:', error);
     }
@@ -144,6 +147,8 @@ export default function BossPackages() {
 
       setShowModal(false);
       fetchPackages();
+      setToast(editingItem ? '套餐已更新' : '套餐已创建');
+      setTimeout(() => setToast(null), 2000);
     } catch (err: any) {
       setError(err?.message || '保存失败，请重试');
     } finally {
@@ -453,6 +458,12 @@ export default function BossPackages() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          {toast}
         </div>
       )}
     </div>

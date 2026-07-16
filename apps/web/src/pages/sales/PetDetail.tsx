@@ -9,6 +9,9 @@ export default function SalesPetDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('info');
+  const [salesScript, setSalesScript] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const { data: pet, isLoading } = useQuery({
     queryKey: ['pet', id],
@@ -21,6 +24,20 @@ export default function SalesPetDetail() {
   if (isLoading || !pet) {
     return <div className="flex items-center justify-center h-64"><div className="text-gray-500">加载中...</div></div>;
   }
+
+  const handleGenerateScript = async () => {
+    setGenerating(true);
+    try {
+      const res: any = await api.post('/ai/chat', {
+        message: `帮我生成一只${pet.breed}的销售话术，名字叫${pet.name}，价格${pet.salePrice}元，性别${pet.gender === 'MALE' ? '公' : '母'}`,
+      });
+      setSalesScript(res.data.answer);
+    } catch {
+      setSalesScript('生成失败，请稍后再试');
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const photoUrl = pet.photos?.[0]?.url;
   const canCheckout = pet.status === 'IN_STOCK';
@@ -76,10 +93,32 @@ export default function SalesPetDetail() {
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 开单出库
               </button>
-              <button className="btn btn-secondary w-full">
+              <button
+                onClick={handleGenerateScript}
+                className="btn btn-secondary w-full"
+              >
                 <MessageCircle className="w-4 h-4 mr-2" />
-                生成销售话术
+                {generating ? '生成中...' : '生成销售话术'}
               </button>
+
+              {salesScript && (
+                <div className="card p-4 bg-blue-50 border-blue-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-blue-600">AI 销售话术</span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard?.writeText(salesScript);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      className="text-xs text-blue-500 hover:text-blue-700"
+                    >
+                      {copied ? '已复制' : '复制'}
+                    </button>
+                  </div>
+                  <p className="text-sm text-gray-700 whitespace-pre-line">{salesScript}</p>
+                </div>
+              )}
             </div>
           )}
         </div>

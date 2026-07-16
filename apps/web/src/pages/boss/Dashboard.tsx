@@ -37,6 +37,7 @@ interface DailyReport {
 }
 
 export default function BossDashboard() {
+  const [showWelcome, setShowWelcome] = useState(true);
   const [report, setReport] = useState<DailyReport | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -81,6 +82,24 @@ export default function BossDashboard() {
           刷新日报
         </button>
       </div>
+
+      {/* Welcome Banner */}
+      {showWelcome && (
+        <div className="card p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">欢迎使用宠迹 AI！</p>
+              <p className="text-sm text-gray-500">试试点击左侧菜单体验不同功能，或点击右下角"刷新日报"查看 AI 经营建议</p>
+            </div>
+          </div>
+          <button onClick={() => setShowWelcome(false)} className="text-gray-400 hover:text-gray-600 px-2">
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* AI Summary Card */}
       <div className="card p-6 bg-gradient-to-r from-primary-500 to-orange-500 text-white">

@@ -184,6 +184,17 @@ export default function Login() {
                   </div>
                 </div>
 
+                <button
+                  type="button"
+                  onClick={() => handleDemoLogin('13800000000', '123456')}
+                  disabled={loading}
+                  className="w-full py-3 bg-gradient-to-r from-primary-500 to-orange-500 text-white rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-5 h-5" />
+                  一键体验全部功能（店主视角）
+                </button>
+                <p className="text-xs text-gray-400 text-center mt-2 mb-3">点击立即进入，无需输入账号密码</p>
+
                 <div className="grid grid-cols-3 gap-2">
                   {demoAccounts.map((demo) => {
                     const Icon = demo.icon;

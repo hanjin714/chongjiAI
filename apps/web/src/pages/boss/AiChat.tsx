@@ -33,8 +33,10 @@ export default function BossAiChat() {
   const quickQuestions = [
     '今天的经营情况怎么样？',
     '有哪些高风险客户需要关注？',
-    '库存周转最慢的宠物有哪些？',
-    '最近一个月的销售趋势',
+    '帮我生成朋友圈推广文案',
+    '本月销售业绩排行',
+    '库存周转分析',
+    '生成小红书种草文案',
   ];
 
   const handleSend = async (text?: string) => {
