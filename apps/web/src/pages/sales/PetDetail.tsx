@@ -1,23 +1,67 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, CheckCircle, AlertTriangle, Phone, MessageCircle } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { ArrowLeft, ShoppingCart, CheckCircle, AlertTriangle, Phone, MessageCircle, Bookmark } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
 import { formatPrice, getPetStatusText, getPetStatusColor, getHealthStatusText, getHealthStatusColor } from '@/utils';
+
+interface ReservedBy {
+  salesId: string;
+  salesName: string;
+  customerName: string;
+  customerPhone: string;
+  reservedAt: string;
+}
 
 export default function SalesPetDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('info');
   const [salesScript, setSalesScript] = useState('');
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showReserveForm, setShowReserveForm] = useState(false);
+  const [reserveForm, setReserveForm] = useState({ customerName: '', customerPhone: '' });
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  };
 
   const { data: pet, isLoading } = useQuery({
     queryKey: ['pet', id],
     queryFn: async () => {
       const res: any = await api.get(`/pets/${id}`);
       return res.data;
+    },
+  });
+
+  const reserveMutation = useMutation({
+    mutationFn: (payload: { customerName: string; customerPhone: string }) =>
+      api.post(`/pets/${id}/reserve`, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pet', id] });
+      setShowReserveForm(false);
+      setReserveForm({ customerName: '', customerPhone: '' });
+      showToast('预定成功');
+    },
+    onError: () => {
+      showToast('预定失败，请重试');
+    },
+  });
+
+  const cancelReserveMutation = useMutation({
+    mutationFn: () => api.delete(`/pets/${id}/reserve`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pet', id] });
+      showToast('已取消预定');
+    },
+    onError: () => {
+      showToast('取消预定失败，请重试');
     },
   });
 
@@ -41,6 +85,17 @@ export default function SalesPetDetail() {
 
   const photoUrl = pet.photos?.[0]?.url;
   const canCheckout = pet.status === 'IN_STOCK';
+  const reservedBy: ReservedBy | null = pet.reservedBy || null;
+  const isReservedByMe = reservedBy && user && reservedBy.salesId === user.id;
+  const isReservedByOther = reservedBy && user && reservedBy.salesId !== user.id;
+
+  const handleReserveSubmit = () => {
+    if (!reserveForm.customerName.trim() || !reserveForm.customerPhone.trim()) {
+      showToast('请填写客户姓名和手机号');
+      return;
+    }
+    reserveMutation.mutate(reserveForm);
+  };
 
   return (
     <div className="space-y-6">
@@ -93,6 +148,43 @@ export default function SalesPetDetail() {
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 开单出库
               </button>
+
+              {/* 预定按钮：三种状态 */}
+              {isReservedByOther ? (
+                <button
+                  disabled
+                  className="btn btn-secondary w-full opacity-50 cursor-not-allowed"
+                  title={`已被 ${reservedBy!.salesName} 预定`}
+                >
+                  <Bookmark className="w-4 h-4 mr-2" />
+                  已被{reservedBy!.salesName}预定
+                </button>
+              ) : isReservedByMe ? (
+                <button
+                  onClick={() => cancelReserveMutation.mutate()}
+                  disabled={cancelReserveMutation.isPending}
+                  className="btn btn-secondary w-full"
+                >
+                  <Bookmark className="w-4 h-4 mr-2" />
+                  {cancelReserveMutation.isPending ? '取消中...' : '取消预定'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setShowReserveForm(true)}
+                  className="btn btn-secondary w-full"
+                >
+                  <Bookmark className="w-4 h-4 mr-2" />
+                  标记为预定
+                </button>
+              )}
+
+              {/* 预定信息展示 */}
+              {reservedBy && (
+                <div className="text-xs text-gray-500 bg-orange-50 p-2 rounded-lg">
+                  预定客户：{reservedBy.customerName} ({reservedBy.customerPhone})
+                </div>
+              )}
+
               <button
                 onClick={handleGenerateScript}
                 className="btn btn-secondary w-full"
@@ -202,6 +294,74 @@ export default function SalesPetDetail() {
           </div>
         </div>
       </div>
+
+      {/* 预定表单 Modal */}
+      {showReserveForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">标记为预定</h3>
+              <button
+                onClick={() => {
+                  setShowReserveForm(false);
+                  setReserveForm({ customerName: '', customerPhone: '' });
+                }}
+                className="text-gray-400 hover:text-gray-600 text-xl"
+              >
+                ×
+              </button>
+            </div>
+            <p className="text-sm text-gray-500">
+              请填写客户联系方式，标记后该宠物仅可由您本人开单出库。
+            </p>
+            <div>
+              <label className="label">客户姓名 *</label>
+              <input
+                type="text"
+                value={reserveForm.customerName}
+                onChange={(e) => setReserveForm({ ...reserveForm, customerName: e.target.value })}
+                className="input"
+                placeholder="请输入客户姓名"
+              />
+            </div>
+            <div>
+              <label className="label">客户手机号 *</label>
+              <input
+                type="tel"
+                value={reserveForm.customerPhone}
+                onChange={(e) => setReserveForm({ ...reserveForm, customerPhone: e.target.value })}
+                className="input"
+                placeholder="请输入手机号"
+              />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={() => {
+                  setShowReserveForm(false);
+                  setReserveForm({ customerName: '', customerPhone: '' });
+                }}
+                className="btn btn-secondary flex-1"
+              >
+                取消
+              </button>
+              <button
+                onClick={handleReserveSubmit}
+                disabled={reserveMutation.isPending}
+                className="btn btn-primary flex-1"
+              >
+                {reserveMutation.isPending ? '提交中...' : '确认预定'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }

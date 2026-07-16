@@ -22,6 +22,7 @@ import SalesTasks from './pages/sales/Tasks';
 import SalesAiChat from './pages/sales/AiChat';
 import SalesPosters from './pages/sales/Posters';
 import SalesCheckout from './pages/sales/Checkout';
+import SalesDailyReport from './pages/sales/DailyReport';
 import KeeperDashboard from './pages/keeper/Dashboard';
 import KeeperPets from './pages/keeper/Pets';
 import KeeperPetDetail from './pages/keeper/PetDetail';
@@ -106,6 +107,7 @@ export default function App() {
         <Route path="tasks" element={<SalesTasks />} />
         <Route path="ai-chat" element={<SalesAiChat />} />
         <Route path="posters" element={<SalesPosters />} />
+        <Route path="daily-report" element={<SalesDailyReport />} />
       </Route>
 
       <Route

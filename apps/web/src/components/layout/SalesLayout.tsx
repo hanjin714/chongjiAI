@@ -7,8 +7,8 @@ import {
   MessageSquare,
   LogOut,
   Sparkles,
-  Cat,
   Image,
+  FileText,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth';
 
@@ -18,6 +18,7 @@ const menuItems = [
   { path: '/sales/customers', label: '客户跟进', icon: Users },
   { path: '/sales/tasks', label: '任务管理', icon: CheckSquare },
   { path: '/sales/posters', label: '每日海报', icon: Image },
+  { path: '/sales/daily-report', label: '每日日报', icon: FileText },
   { path: '/sales/ai-chat', label: 'AI 助手', icon: MessageSquare },
 ];
 

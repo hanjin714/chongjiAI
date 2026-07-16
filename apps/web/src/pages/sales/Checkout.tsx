@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, FileText, CheckCircle, Camera, Image, X, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, CheckCircle, Camera, Image, X, ExternalLink, AlertTriangle } from 'lucide-react';
 import api from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
 import { formatPrice } from '@/utils';
 
 export default function SalesCheckout() {
   const { petId } = useParams<{ petId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [pet, setPet] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -99,6 +101,30 @@ export default function SalesCheckout() {
 
   if (loading || !pet) {
     return <div className="flex items-center justify-center h-64"><div className="text-gray-500">加载中...</div></div>;
+  }
+
+  // 预定拦截：若宠物已被其他销售预定，禁止开单
+  const reservedByOther = pet.reservedBy && user && pet.reservedBy.salesId !== user.id;
+  if (reservedByOther) {
+    return (
+      <div className="max-w-md mx-auto mt-20">
+        <div className="card p-8 text-center">
+          <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-10 h-10 text-orange-500" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">无法开单</h2>
+          <p className="text-gray-500 mb-6">
+            这只宠物已被 <span className="font-semibold text-orange-600">{pet.reservedBy.salesName}</span> 预定，您无法开单
+          </p>
+          <button
+            onClick={() => navigate('/sales/inventory')}
+            className="btn btn-primary w-full"
+          >
+            返回库存
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (success) {

@@ -3,10 +3,22 @@ import {
   mockUsers, mockPets, mockCustomers, mockPackages, mockTasks,
   mockStores, mockDailyReport, mockFeishuStatus, mockFeishuLogs,
   mockHealthLogs, mockSalesOrders, mockPosters, getAiResponse,
+  mockDailyReportTemplate,
 } from '../mock/data';
+import { useAuthStore } from '../store/auth';
 
 const delay = (ms = 300) => new Promise(r => setTimeout(r, ms));
 const ok = (data: any) => ({ success: true, data });
+
+// 模块级日报状态（按 salesId 缓存，POST 可更新 submittedReport）
+const dailyReportStore: Record<string, ReturnType<typeof mockDailyReportTemplate>> = {};
+
+function getDailyReport(salesId: string) {
+  if (!dailyReportStore[salesId]) {
+    dailyReportStore[salesId] = mockDailyReportTemplate(salesId);
+  }
+  return dailyReportStore[salesId];
+}
 
 function buildQuery(params?: Record<string, any>) {
   if (!params) return '';
@@ -69,6 +81,23 @@ async function mockRequest(method: string, url: string, data?: any, params?: any
     });
   }
 
+  // GET /reports/sales-daily — 销售每日日报
+  if (url === '/reports/sales-daily' && method === 'GET') {
+    const authUser = useAuthStore.getState().user;
+    const salesId = authUser?.id || 'u2';
+    const report = getDailyReport(salesId);
+    return ok({ ...report });
+  }
+
+  // POST /reports/sales-daily — 提交销售每日日报
+  if (url === '/reports/sales-daily' && method === 'POST') {
+    const authUser = useAuthStore.getState().user;
+    const salesId = authUser?.id || 'u2';
+    const report = getDailyReport(salesId);
+    report.submittedReport = data?.content || '';
+    return ok({ ...report });
+  }
+
   // GET /pets
   if (url === '/pets' && method === 'GET') {
     const p = new URLSearchParams(fullUrl.split('?')[1] || '');
@@ -93,6 +122,7 @@ async function mockRequest(method: string, url: string, data?: any, params?: any
       photoUrl: pt.photoUrl,
       color: pt.color,
       store: { name: pt.storeId === 's1' ? '静安旗舰店' : '浦东分店' },
+      reservedBy: (pt as any).reservedBy || null,
     }));
     return ok({ items, total: items.length });
   }
@@ -124,6 +154,7 @@ async function mockRequest(method: string, url: string, data?: any, params?: any
       purchasePrice: Math.round(pt.price * 0.5),
       store: { name: pt.storeId === 's1' ? '静安旗舰店' : '浦东分店' },
       logs,
+      reservedBy: (pt as any).reservedBy || null,
     });
   }
 
@@ -135,6 +166,36 @@ async function mockRequest(method: string, url: string, data?: any, params?: any
   // POST /pets/:id/confirm-arrival
   if (url.match(/^\/pets\/[^/]+\/confirm-arrival$/)) {
     return ok({ success: true });
+  }
+
+  // POST /pets/:id/reserve — 标记为预定
+  const reserveMatch = url.match(/^\/pets\/([^/]+)\/reserve$/);
+  if (reserveMatch && method === 'POST') {
+    const pt = mockPets.find(p => p.id === reserveMatch[1]);
+    if (!pt) return Promise.reject({ message: '宠物不存在' });
+    const authUser = useAuthStore.getState().user;
+    const salesId = authUser?.id || 'u2';
+    const salesName = authUser?.name || '李小花';
+    const { customerName, customerPhone } = data || {};
+    (pt as any).reservedBy = {
+      salesId,
+      salesName,
+      customerName: customerName || '',
+      customerPhone: customerPhone || '',
+      reservedAt: new Date().toISOString(),
+    };
+    return ok({
+      id: pt.id,
+      reservedBy: (pt as any).reservedBy,
+    });
+  }
+
+  // DELETE /pets/:id/reserve — 取消预定
+  if (reserveMatch && method === 'DELETE') {
+    const pt = mockPets.find(p => p.id === reserveMatch[1]);
+    if (!pt) return Promise.reject({ message: '宠物不存在' });
+    (pt as any).reservedBy = null;
+    return ok({ id: pt.id, reservedBy: null });
   }
 
   // GET /users

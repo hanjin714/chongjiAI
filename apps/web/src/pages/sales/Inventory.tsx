@@ -2,7 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Package, RefreshCw } from 'lucide-react';
 import api from '@/lib/api';
+import { useAuthStore } from '@/store/auth';
 import { getPetStatusText, getPetStatusColor, formatPrice } from '@/utils';
+
+interface ReservedBy {
+  salesId: string;
+  salesName: string;
+  customerName: string;
+  customerPhone: string;
+  reservedAt: string;
+}
 
 export default function SalesInventory() {
   const [pets, setPets] = useState<any[]>([]);
@@ -10,6 +19,7 @@ export default function SalesInventory() {
   const [search, setSearch] = useState('');
   const [speciesFilter, setSpeciesFilter] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     fetchPets();
@@ -83,58 +93,84 @@ export default function SalesInventory() {
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {pets.map((pet) => (
-            <div
-              key={pet.id}
-              className="card overflow-hidden cursor-pointer hover:shadow-card-hover transition-shadow group"
-              onClick={() => navigate(`/sales/inventory/${pet.id}`)}
-            >
-              <div className="aspect-square bg-gray-100 relative overflow-hidden">
-                {pet.photoUrl ? (
-                  <img
-                    src={pet.photoUrl}
-                    alt={pet.name || pet.breed}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    暂无图片
+          {pets.map((pet) => {
+            const reservedBy: ReservedBy | null = pet.reservedBy || null;
+            const isReservedByOther = reservedBy && user && reservedBy.salesId !== user.id;
+            const isReservedByMe = reservedBy && user && reservedBy.salesId === user.id;
+            return (
+              <div
+                key={pet.id}
+                className="card overflow-hidden cursor-pointer hover:shadow-card-hover transition-shadow group"
+                onClick={() => navigate(`/sales/inventory/${pet.id}`)}
+              >
+                <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                  {pet.photoUrl ? (
+                    <img
+                      src={pet.photoUrl}
+                      alt={pet.name || pet.breed}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      暂无图片
+                    </div>
+                  )}
+                  <div className="absolute top-2 left-2">
+                    <span className={`badge ${getPetStatusColor(pet.status)}`}>
+                      {getPetStatusText(pet.status)}
+                    </span>
                   </div>
-                )}
-                <div className="absolute top-2 left-2">
-                  <span className={`badge ${getPetStatusColor(pet.status)}`}>
-                    {getPetStatusText(pet.status)}
-                  </span>
+                  {/* 预定角标 */}
+                  {isReservedByOther && (
+                    <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full shadow">
+                      已预定
+                    </div>
+                  )}
+                  {isReservedByMe && (
+                    <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full shadow">
+                      我预定的
+                    </div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-500">{pet.publicId}</span>
+                    <span className="text-xs text-gray-400">
+                      {pet.gender === 'MALE' ? '♂' : '♀'}
+                    </span>
+                  </div>
+                  <h3 className="font-medium text-gray-900 truncate">
+                    {pet.name || pet.breed}
+                  </h3>
+                  <p className="text-sm text-gray-500 truncate">{pet.breed}</p>
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-pet-blue font-semibold">
+                      {formatPrice(pet.salePrice)}
+                    </span>
+                    {isReservedByOther ? (
+                      <button
+                        disabled
+                        title={`已被 ${reservedBy!.salesName} 预定`}
+                        className="text-xs bg-gray-100 text-gray-400 px-2 py-1 rounded-md cursor-not-allowed"
+                      >
+                        开单
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/sales/checkout/${pet.id}`);
+                        }}
+                        className="text-xs bg-pet-blue/10 text-pet-blue px-2 py-1 rounded-md hover:bg-pet-blue/20"
+                      >
+                        开单
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-gray-500">{pet.publicId}</span>
-                  <span className="text-xs text-gray-400">
-                    {pet.gender === 'MALE' ? '♂' : '♀'}
-                  </span>
-                </div>
-                <h3 className="font-medium text-gray-900 truncate">
-                  {pet.name || pet.breed}
-                </h3>
-                <p className="text-sm text-gray-500 truncate">{pet.breed}</p>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-pet-blue font-semibold">
-                    {formatPrice(pet.salePrice)}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/sales/checkout/${pet.id}`);
-                    }}
-                    className="text-xs bg-pet-blue/10 text-pet-blue px-2 py-1 rounded-md hover:bg-pet-blue/20"
-                  >
-                    开单
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -17,8 +17,8 @@ export const mockPets = [
   { id: 'p1', name: '团团', species: '猫', breed: '英短蓝猫', gender: '公', birthDate: '2024-03-15', weight: 4.2, color: '蓝灰色', photoUrl: IMG('cute british shorthair blue cat sitting, studio photo, pet photography'), status: 'AVAILABLE', storeId: 's1', customerId: null, price: 3800, description: '性格温顺，已做两针疫苗', microchip: 'CN20240315001', source: '自家繁育', entryDate: '2024-06-01' },
   { id: 'p2', name: '小橘', species: '猫', breed: '橘猫', gender: '公', birthDate: '2024-01-20', weight: 5.8, color: '橘色', photoUrl: IMG('cute orange tabby cat playing, studio photo, pet photography'), status: 'AVAILABLE', storeId: 's1', customerId: null, price: 1200, description: '能吃能睡，活泼好动', microchip: 'CN20240120002', source: '客户寄养', entryDate: '2024-05-15' },
   { id: 'p3', name: '贝贝', species: '狗', breed: '柯基', gender: '母', birthDate: '2024-05-08', weight: 6.5, color: '黄白双色', photoUrl: IMG('cute corgi puppy sitting, studio photo, pet photography'), status: 'SOLD', storeId: 's1', customerId: 'c1', price: 6800, description: '小短腿，萌萌的蜜桃臀', microchip: 'CN20240508003', source: '正规犬舍', entryDate: '2024-07-10' },
-  { id: 'p4', name: '雪球', species: '猫', breed: '布偶猫', gender: '母', birthDate: '2024-02-14', weight: 3.8, color: '白手套', photoUrl: IMG('beautiful ragdoll cat with blue eyes, studio photo, pet photography'), status: 'AVAILABLE', storeId: 's1', customerId: null, price: 8800, description: '仙女猫，性格粘人', microchip: 'CN20240214004', source: '自家繁育', entryDate: '2024-06-20' },
-  { id: 'p5', name: '旺财', species: '狗', breed: '金毛', gender: '公', birthDate: '2023-12-01', weight: 15.2, color: '金色', photoUrl: IMG('golden retriever dog smiling, studio photo, pet photography'), status: 'AVAILABLE', storeId: 's1', customerId: null, price: 4500, description: '暖男一枚，已做完所有疫苗', microchip: 'CN20231201005', source: '正规犬舍', entryDate: '2024-04-01' },
+  { id: 'p4', name: '雪球', species: '猫', breed: '布偶猫', gender: '母', birthDate: '2024-02-14', weight: 3.8, color: '白手套', photoUrl: IMG('beautiful ragdoll cat with blue eyes, studio photo, pet photography'), status: 'AVAILABLE', storeId: 's1', customerId: null, price: 8800, description: '仙女猫，性格粘人', microchip: 'CN20240214004', source: '自家繁育', entryDate: '2024-06-20', reservedBy: { salesId: 'u5', salesName: '陈销售', customerName: '王女士', customerPhone: '13900001111', reservedAt: '2025-01-15T10:00:00Z' } },
+  { id: 'p5', name: '旺财', species: '狗', breed: '金毛', gender: '公', birthDate: '2023-12-01', weight: 15.2, color: '金色', photoUrl: IMG('golden retriever dog smiling, studio photo, pet photography'), status: 'AVAILABLE', storeId: 's1', customerId: null, price: 4500, description: '暖男一枚，已做完所有疫苗', microchip: 'CN20231201005', source: '正规犬舍', entryDate: '2024-04-01', reservedBy: { salesId: 'u2', salesName: '李小花', customerName: '刘同学', customerPhone: '13555559999', reservedAt: '2025-01-15T11:30:00Z' } },
   { id: 'p6', name: '芒果', species: '猫', breed: '美短虎斑', gender: '公', birthDate: '2024-04-22', weight: 3.6, color: '银虎斑', photoUrl: IMG('american shorthair silver tabby cat, studio photo, pet photography'), status: 'AVAILABLE', storeId: 's1', customerId: null, price: 2800, description: '花纹清晰，活泼可爱', microchip: 'CN20240422006', source: '自家繁育', entryDate: '2024-08-01' },
   { id: 'p7', name: '豆豆', species: '狗', breed: '泰迪', gender: '母', birthDate: '2024-06-10', weight: 2.8, color: '棕色', photoUrl: IMG('cute brown toy poodle puppy, studio photo, pet photography'), status: 'SOLD', storeId: 's1', customerId: 'c2', price: 3500, description: '不掉毛，已做两针疫苗', microchip: 'CN20240610007', source: '正规犬舍', entryDate: '2024-09-01' },
   { id: 'p8', name: '棉花', species: '兔', breed: '垂耳兔', gender: '母', birthDate: '2024-07-05', weight: 1.5, color: '白色', photoUrl: IMG('cute white lop eared rabbit, studio photo, pet photography'), status: 'AVAILABLE', storeId: 's1', customerId: null, price: 580, description: '软萌可爱，适合新手', microchip: '', source: '合作养殖场', entryDate: '2024-10-01' },
@@ -232,3 +232,17 @@ export const mockPosters = [
     published: false,
   },
 ];
+
+// ─── 销售每日日报模板 ───
+export const mockDailyReportTemplate = (salesId: string) => ({
+  date: new Date().toISOString().slice(0, 10),
+  salesId,
+  soldPets: [
+    { id: 'p1', name: '雪球', breed: '布偶猫', salePrice: 8000, customerName: '张先生' },
+    { id: 'p3', name: '团团', breed: '英短蓝猫', salePrice: 3500, customerName: '李女士' },
+  ],
+  reservedPets: [
+    { id: 'p2', name: '旺财', breed: '金毛', salePrice: 12000, customerName: '王女士', customerPhone: '13900001111' },
+  ],
+  submittedReport: null as string | null,
+});
